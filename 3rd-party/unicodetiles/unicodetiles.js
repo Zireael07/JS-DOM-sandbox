@@ -186,25 +186,26 @@ ut.Viewport = function(elem, w, h, renderer, squarify) {
 	///   * "auto" - Use best available, i.e. try the above in order, picking the first that works
 	this.setRenderer = function(newrenderer) {
 		this.elem.innerHTML = "";
-		if (newrenderer === "auto" || newrenderer === "webgl") {
-			try {
-				this.renderer = new ut.WebGLRenderer(this);
-			} catch (e) {
-				console.error(e);
-				newrenderer = "canvas";
-				this.elem.innerHTML = "";
-			}
-		}
-		if (newrenderer === "canvas") {
-			try {
-				this.renderer = new ut.CanvasRenderer(this);
-			} catch (e) {
-				console.error(e);
-				newrenderer = "dom";
-				this.elem.innerHTML = "";
-			}
-		}
-		if (newrenderer === "auto" || newrenderer === "dom") {
+		//Zir: we don't use the other renderers
+		// if (newrenderer === "auto" || newrenderer === "webgl") {
+		// 	try {
+		// 		this.renderer = new ut.WebGLRenderer(this);
+		// 	} catch (e) {
+		// 		console.error(e);
+		// 		newrenderer = "canvas";
+		// 		this.elem.innerHTML = "";
+		// 	}
+		// }
+		// if (newrenderer === "canvas") {
+		// 	try {
+		// 		this.renderer = new ut.CanvasRenderer(this);
+		// 	} catch (e) {
+		// 		console.error(e);
+		// 		newrenderer = "dom";
+		// 		this.elem.innerHTML = "";
+		// 	}
+		// }
+		if (newrenderer === "dom") {
 			this.renderer = new ut.DOMRenderer(this);
 		}
 		this.updateStyle(false);
@@ -356,45 +357,46 @@ ut.Engine = function(vp, func, w, h) {
 	///   duration - (integer) (optional) how many milliseconds the transition effect should last
 	ut.Engine.prototype.setTileFunc = function(func, effect, duration) {
 		"use strict";
-		if (effect) {
-			this.transition = undefined;
-			if (typeof effect === "string") {
-				if (effect === "boxin") this.transition = function(x, y, w, h, new_t, old_t, factor) {
-					var halfw = w * 0.5, halfh = h * 0.5;
-					x -= halfw; y -= halfh;
-					if (Math.abs(x) < halfw * factor && Math.abs(y) < halfh * factor) return new_t;
-					else return old_t;
-				};
-				else if (effect === "boxout") this.transition = function(x, y, w, h, new_t, old_t, factor) {
-					var halfw = w * 0.5, halfh = h * 0.5;
-					x -= halfw; y -= halfh;
-					factor = 1.0 - factor;
-					if (Math.abs(x) < halfw * factor && Math.abs(y) < halfh * factor) return old_t;
-					else return new_t;
-				};
-				else if (effect === "circlein") this.transition = function(x, y, w, h, new_t, old_t, factor) {
-					var halfw = w * 0.5, halfh = h * 0.5;
-					x -= halfw; y -= halfh;
-					if (x*x + y*y < (halfw*halfw + halfh*halfh) * factor) return new_t;
-					else return old_t;
-				};
-				else if (effect === "circleout") this.transition = function(x, y, w, h, new_t, old_t, factor) {
-					var halfw = w * 0.5, halfh = h * 0.5;
-					x -= halfw; y -= halfh;
-					factor = 1.0 - factor;
-					if (x*x + y*y > (halfw*halfw + halfh*halfh) * factor) return new_t;
-					else return old_t;
-				};
-				else if (effect === "random") this.transition = function(x, y, w, h, new_t, old_t, factor) {
-					if (Math.random() > factor) return old_t;
-					else return new_t;
-				};
-			}
-			if (this.transition) {
-				this.transitionTimer = (new Date()).getTime();
-				this.transitionDuration = duration || 500;
-			}
-		}
+		//Zir: cool but impractical
+		// if (effect) {
+		// 	this.transition = undefined;
+		// 	if (typeof effect === "string") {
+		// 		if (effect === "boxin") this.transition = function(x, y, w, h, new_t, old_t, factor) {
+		// 			var halfw = w * 0.5, halfh = h * 0.5;
+		// 			x -= halfw; y -= halfh;
+		// 			if (Math.abs(x) < halfw * factor && Math.abs(y) < halfh * factor) return new_t;
+		// 			else return old_t;
+		// 		};
+		// 		else if (effect === "boxout") this.transition = function(x, y, w, h, new_t, old_t, factor) {
+		// 			var halfw = w * 0.5, halfh = h * 0.5;
+		// 			x -= halfw; y -= halfh;
+		// 			factor = 1.0 - factor;
+		// 			if (Math.abs(x) < halfw * factor && Math.abs(y) < halfh * factor) return old_t;
+		// 			else return new_t;
+		// 		};
+		// 		else if (effect === "circlein") this.transition = function(x, y, w, h, new_t, old_t, factor) {
+		// 			var halfw = w * 0.5, halfh = h * 0.5;
+		// 			x -= halfw; y -= halfh;
+		// 			if (x*x + y*y < (halfw*halfw + halfh*halfh) * factor) return new_t;
+		// 			else return old_t;
+		// 		};
+		// 		else if (effect === "circleout") this.transition = function(x, y, w, h, new_t, old_t, factor) {
+		// 			var halfw = w * 0.5, halfh = h * 0.5;
+		// 			x -= halfw; y -= halfh;
+		// 			factor = 1.0 - factor;
+		// 			if (x*x + y*y > (halfw*halfw + halfh*halfh) * factor) return new_t;
+		// 			else return old_t;
+		// 		};
+		// 		else if (effect === "random") this.transition = function(x, y, w, h, new_t, old_t, factor) {
+		// 			if (Math.random() > factor) return old_t;
+		// 			else return new_t;
+		// 		};
+		// 	}
+		// 	if (this.transition) {
+		// 		this.transitionTimer = (new Date()).getTime();
+		// 		this.transitionDuration = duration || 500;
+		// 	}
+		// }
 		this.tileFunc = func;
 	};
 
@@ -476,9 +478,9 @@ ut.Engine = function(vp, func, w, h) {
 				} else if (this.maskFunc && !this.maskFunc(ixx, jyy)) {
 					tile = ut.NULLTILE;
 				// Check transition effect
-				} else if (this.transition && !this.refreshCache) {
-					tile = this.transition(i, j, this.viewport.w, this.viewport.h,
-						this.tileFunc(ixx, jyy), this.tileCache[j][i], transTime);
+				// } else if (this.transition && !this.refreshCache) {
+				// 	tile = this.transition(i, j, this.viewport.w, this.viewport.h,
+				// 		this.tileFunc(ixx, jyy), this.tileCache[j][i], transTime);
 				// Check cache
 				} else if (this.cacheEnabled && !this.refreshCache) {
 					var lookupx = ixx - this.cachex;
