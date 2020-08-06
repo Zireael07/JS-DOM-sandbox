@@ -8,7 +8,7 @@ ut.DOMRenderer = function(view) {
 	"use strict";
 	this.view = view;
 
-	// Create a matrix of <span> elements, cache references
+	// Create a matrix of <div> elements, cache references
 	this.spans = new Array(view.h);
 	this.colors = new Array(view.h);
 	for (var j = 0; j < view.h; ++j) {

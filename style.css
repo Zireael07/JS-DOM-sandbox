@@ -5,13 +5,6 @@
 }
 
 #game {
-	font-size: 16px; 
+	font-size: 16px; /* This one determines tile size in our terminal */
 	background-color: #000;
-}
-
-.indexlisting {
-	text-align: left;
-	width: 400px;
-	margin-left: auto;
-	margin-right: auto;
 }

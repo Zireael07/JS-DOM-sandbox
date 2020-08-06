@@ -1,4 +1,5 @@
 /// File: unicodetiles.js
+/// Author: tapio
 /// This file contains the main tile engine namespace.
 /// All coordinates are assumed to be integers - behaviour is undefined
 /// if you feed in floats (or anything other) as x and y (or similar) parameters.
@@ -167,7 +168,7 @@ ut.Viewport = function(elem, w, h, renderer, squarify) {
 	}
 
 	/// Function: updateStyle
-	/// If the style of the parent element is modified, this needs to be called.
+	/// If the style of the parent element (container, aka #game) is modified, this needs to be called.
 	this.updateStyle = function(updateRenderer) {
 		var s = window.getComputedStyle(this.elem, null);
 		this.defaultColor = s.color;
