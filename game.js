@@ -7,7 +7,10 @@ var term, eng; // Can't be initialized yet because DOM is not ready
 var visible = null
 var seen = null
 var refreshFOV = null
+
 var player = new Entity(3, 2, "@", 255, 255, 255);
+
+var rng = null
 
 var map = [
 	" #####             #####      ",
@@ -156,7 +159,9 @@ function initGame() {
 	seen = new Set();
 	setupFOV();
 	//use fov in engine
-	eng.setMaskFunc(shouldDraw)
+	eng.setMaskFunc(shouldDraw);
+	//RNG
+	rng = aleaPRNG();
 	// Initialize input
 	ut.initInput(onKeyDown);
 }
