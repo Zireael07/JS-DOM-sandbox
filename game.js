@@ -1,12 +1,13 @@
-import { Entity } from "./entity.js"
+import { Entity } from "./entity.js";
+import { createFOV } from "./fov.js";
 
 /*global ut */
 var term, eng; // Can't be initialized yet because DOM is not ready
 
+var visible = null
+var refreshFOV = null
 var player = new Entity(3, 2, "@", 255, 255, 255);
 
-
-var updateFOV; // For some of the examples
 var map = [
 	" #####             #####      ",
 	" #...########      #...####   ",
@@ -56,6 +57,33 @@ function getDungeonTile(x, y) {
 	return ut.NULLTILE;
 }
 
+//shortcut that will make it easier to extend later
+function isOpaque(x,y) {
+	return eng.tileFunc(x, y).getChar() !== '.'
+}
+
+function setupFOV() {
+	refreshFOV = createFOV(
+		map[0].length, 
+		map.length,
+		(x, y) => revealTile(x, y),
+		(x, y) => isOpaque(x, y)
+	  );
+
+	refreshVisibility();
+}
+function refreshVisibility() {
+	visible.clear();
+	refreshFOV(player.x, player.y, 4);
+}
+
+function isVisible(x, y) {
+	return visible.has(`${x},${y}`);
+}
+function revealTile(x, y) {
+	visible.add(`${x},${y}`);
+}
+
 function moveEntity(dx, dy, entity) {
 	if (eng.tileFunc(entity.x+dx, entity.y+dy).getChar() !== '.') {
 		return;
@@ -66,7 +94,7 @@ function moveEntity(dx, dy, entity) {
 
 // "Main loop"
 function tick() {
-	if (updateFOV) updateFOV(player.x, player.y); // Update field of view (used in some examples)
+	refreshVisibility();
 	eng.update(player.x, player.y); // Update tiles in viewport
 	term.put(AT, term.cx, term.cy); // Player character always centered in viewport
 	term.render(); // Render
@@ -92,7 +120,12 @@ function initGame() {
 	// Initialize Viewport, i.e. the place where the characters are displayed
 	term = new ut.Viewport(document.getElementById("game"), 80, 60, "dom"); //41, 25);
 	// Initialize Engine, i.e. the Tile manager
-	eng = new ut.Engine(term, getDungeonTile, map[0].length, map.length);
+	eng = new ut.Engine(term, getDungeonTile, map[0].length, map.length); //w,h
+	//Initialize FOV
+	visible = new Set();
+	setupFOV();
+	//use fov in engine
+	eng.setMaskFunc(isVisible)
 	// Initialize input
 	ut.initInput(onKeyDown);
 }
