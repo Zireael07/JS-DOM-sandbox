@@ -9,6 +9,7 @@ var seen = null
 var refreshFOV = null
 
 var player = new Entity(3, 2, "@", 255, 255, 255);
+var entities = [];
 
 var rng = null
 
@@ -47,9 +48,12 @@ var map = [
 
 // The tile palette is precomputed in order to not have to create
 // thousands of Tiles on the fly.
-var AT = new ut.Tile("@", 255, 255, 255);
+// tiles
 var WALL = new ut.Tile('▒', 200, 200, 200);
 var FLOOR = new ut.Tile('.', 255, 255, 255);
+//entities
+var AT = new ut.Tile("@", 255, 255, 255);
+var THUG = new ut.Tile("t", 255, 0, 0);
 
 // Returns a Tile based on the char array map
 function getDungeonTile(x, y) {
@@ -125,11 +129,41 @@ function moveEntity(dx, dy, entity) {
 	entity.y += dy;
 }
 
+function spawnEntities() {
+	var x = 26;
+	var y = 6;
+	entities.push(new Entity(x,y, "t", 255,0,0));
+
+	x = 10;
+	y = 22;
+	entities.push(new Entity(x,y, "t", 255,0,0));
+}
+
 // "Main loop"
 function tick() {
+	var i, e, len, tilex, tiley; //cache
+	//player is always centered (see below); cx is half width
+	//so this comes out to top left coordinates
+	var cam_x = player.x-term.cx;
+	var cam_y = player.y-term.cy;
+	//console.log("Cam: x: " + cam_x + " y: " + cam_y);
 	refreshVisibility();
 	eng.update(player.x, player.y); // Update tiles in viewport
 	term.put(AT, term.cx, term.cy); // Player character always centered in viewport
+	//draw entities
+	len = entities.length;
+	for (i = 0; i < len; ++i) {
+		e = entities[i];
+		//only if visible
+		if (!isVisible(e.x, e.y)) {
+			// skip
+			continue;
+		}
+		//draw in screen space
+		tilex = e.x - cam_x;
+		tiley = e.y - cam_y;
+		term.put(THUG, tilex, tiley);
+	}
 	term.render(); // Render
 }
 
@@ -148,6 +182,7 @@ function onKeyDown(k) {
 	tick();
 }
 
+//basic stuff
 function initGame() {
 	window.setInterval(tick, 50); // Animation
 	// Initialize Viewport, i.e. the place where the characters are displayed
@@ -162,7 +197,9 @@ function initGame() {
 	eng.setMaskFunc(shouldDraw);
 	//RNG
 	rng = aleaPRNG();
-	// Initialize input
+	// more game init
+	spawnEntities();
+	// engine: initialize input
 	ut.initInput(onKeyDown);
 }
 
