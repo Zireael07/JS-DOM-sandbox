@@ -5,6 +5,7 @@ import { createFOV } from "./fov.js";
 var term, eng; // Can't be initialized yet because DOM is not ready
 
 var visible = null
+var seen = null
 var refreshFOV = null
 var player = new Entity(3, 2, "@", 255, 255, 255);
 
@@ -44,7 +45,7 @@ var map = [
 // The tile palette is precomputed in order to not have to create
 // thousands of Tiles on the fly.
 var AT = new ut.Tile("@", 255, 255, 255);
-var WALL = new ut.Tile('▒', 100, 100, 100);
+var WALL = new ut.Tile('▒', 200, 200, 200);
 var FLOOR = new ut.Tile('.', 255, 255, 255);
 
 // Returns a Tile based on the char array map
@@ -57,6 +58,26 @@ function getDungeonTile(x, y) {
 	return ut.NULLTILE;
 }
 
+function getRenderTile(x,y) {
+	if (isVisible(x,y)) {
+		return getDungeonTile(x,y)
+	}
+	else if (isSeen(x,y)) {
+		var tile = getDungeonTile(x,y);
+		if (tile == ut.NULLTILE) { 
+			return ut.NULLTILE //those don't have anything to tint xDDD
+		} 
+		else {
+			return new ut.Tile(tile.getChar(), tile.r*0.5, tile.g*0.5, tile.b*0.5)
+		}
+	}
+	//paranoia
+	else {
+		return ut.NULLTILE;
+	}
+}
+
+//FOV functions here
 //shortcut that will make it easier to extend later
 function isOpaque(x,y) {
 	return eng.tileFunc(x, y).getChar() !== '.'
@@ -80,8 +101,17 @@ function refreshVisibility() {
 function isVisible(x, y) {
 	return visible.has(`${x},${y}`);
 }
+function isSeen(x, y) {
+	return seen.has(`${x},${y}`);
+}
 function revealTile(x, y) {
-	visible.add(`${x},${y}`);
+	const id = `${x},${y}`;
+    visible.add(id);
+    seen.add(id);
+}
+
+function shouldDraw(x,y) {
+	return isVisible(x,y) || isSeen(x,y);
 }
 
 function moveEntity(dx, dy, entity) {
@@ -120,12 +150,13 @@ function initGame() {
 	// Initialize Viewport, i.e. the place where the characters are displayed
 	term = new ut.Viewport(document.getElementById("game"), 80, 60, "dom"); //41, 25);
 	// Initialize Engine, i.e. the Tile manager
-	eng = new ut.Engine(term, getDungeonTile, map[0].length, map.length); //w,h
+	eng = new ut.Engine(term, getRenderTile, map[0].length, map.length); //w,h
 	//Initialize FOV
 	visible = new Set();
+	seen = new Set();
 	setupFOV();
 	//use fov in engine
-	eng.setMaskFunc(isVisible)
+	eng.setMaskFunc(shouldDraw)
 	// Initialize input
 	ut.initInput(onKeyDown);
 }
