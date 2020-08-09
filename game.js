@@ -133,6 +133,15 @@ function get_creatures_at(entities, x, y){
 		return null;
 }
 
+//this avoids the need for PLAYER/ENEMY_TURN enum
+function enemiesMove() {
+    for (let entity of entities) {
+        if (entity !== player) {
+            console.log(`The ${entity.name} ponders the meaning of its existence.`);
+        }
+    }
+}
+
 function moveEntity(dx, dy, entity) {
 	//do we need to refresh FOV?
 	updateFOV = true;
@@ -157,6 +166,9 @@ function moveEntity(dx, dy, entity) {
 
 	entity.x += dx;
 	entity.y += dy;
+
+	//enemy turn
+	enemiesMove()
 }
 
 function spawnEntities() {
