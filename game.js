@@ -10,7 +10,22 @@ var seen = null
 var refreshFOV = null
 var updateFOV = false;
 
+//death
+function death_player(){
+    console.log(this.owner.name + " is DEAD!"); //, 'rgb(255,0,0)');
+}
+function death_monster(){
+    console.log(this.owner.name + " is dead!"); //'rgb(127,127,127)');
+    //delete from game entities
+    var index = entities.indexOf( this.owner );
+    if (index !== -1) {
+        entities.splice( index, 1 );
+    }
+}
+
+
 var player = new Entity(3, 2, "Player");
+player.creature = new Creature(player, 20, 40, 30, death_player);
 var entities = [];
 
 var rng = null
@@ -156,6 +171,27 @@ function move_astar(entity, tx, ty){
 	}
 }
 
+function takeDamage(target, amount) {
+    target.creature.hp -= amount;
+    if (target.creature.hp <= 0) {
+        target.creature.dead = true;
+		console.log(`${target.name} dies!`);
+		// kill!
+        target.creature.death_function();
+        
+    }
+}
+
+function attack(attacker, defender) {
+    let damage = rng.roller("1d6");
+    if (damage > 0) {
+		console.log(`${attacker.name} attacks ${defender.name} for ${damage} hit points.`);
+		takeDamage(defender, damage);
+    } else {
+        console.log(`${attacker.name} attacks ${defender.name} but does no damage.`);
+    }
+}
+
 //this avoids the need for PLAYER/ENEMY_TURN enum
 function enemiesMove() {
 	var target = player; //cache
@@ -169,9 +205,10 @@ function enemiesMove() {
 					move_astar(entity, target.x, target.y);
 				}
 				//if we are adjacent, attack
-				else{
+				else if (target.creature.hp > 0) {
 					//this uses backticks!!!
-					console.log(`${entity.name} insults you!`);
+					//console.log(`${entity.name} insults you!`);
+					attack(entity, player)
 				}
 			}
         }
@@ -179,6 +216,13 @@ function enemiesMove() {
 }
 
 function moveEntity(dx, dy, entity) {
+	//if dead, do nothing
+	if (entity.creature.dead) {
+        console.log("You are dead.");
+        return;
+    }
+
+
 	//do we need to refresh FOV?
 	updateFOV = true;
 
@@ -194,7 +238,8 @@ function moveEntity(dx, dy, entity) {
 	//check for creatures
 	var target = get_creatures_at(entities, tx, ty);
 	if (target != null){
-		console.log("You kick " + target.name + " in the shins!");
+		//console.log("You kick " + target.name + " in the shins!");
+		attack(player, target);
 		//no need to refresh FOV
 		updateFOV = false;
 		return;
@@ -211,13 +256,13 @@ function spawnEntities() {
 	var x = 26;
 	var y = 6;
 	let ent = new Entity(x,y, "thug")
-	ent.creature = new Creature();
+	ent.creature = new Creature(ent, 5, 20,30, death_monster);
 	entities.push(ent);
 
 	x = 10;
 	y = 22;
 	ent = new Entity(x,y, "thug")
-	ent.creature = new Creature();
+	ent.creature = new Creature(ent, 5, 20,30, death_monster);
 	entities.push(ent);
 }
 
@@ -251,6 +296,8 @@ function tick() {
 
 // Key press handler - movement & collision handling
 function onKeyDown(k) {
+
+
 	if (k === ut.KEY_LEFT || k === ut.KEY_H) moveEntity(-1, 0, player);
 	else if (k === ut.KEY_RIGHT || k === ut.KEY_L) moveEntity(1,0, player);
 	else if (k === ut.KEY_UP || k === ut.KEY_K) moveEntity(0,-1, player);
