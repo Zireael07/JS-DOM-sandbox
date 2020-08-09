@@ -1,4 +1,4 @@
-import { Entity } from "./entity.js";
+import { Entity, Creature } from "./entity.js";
 import { createFOV } from "./fov.js";
 
 /*global ut */
@@ -7,8 +7,9 @@ var term, eng; // Can't be initialized yet because DOM is not ready
 var visible = null
 var seen = null
 var refreshFOV = null
+var updateFOV = false;
 
-var player = new Entity(3, 2, "@", 255, 255, 255);
+var player = new Entity(3, 2, "Player");
 var entities = [];
 
 var rng = null
@@ -121,10 +122,39 @@ function shouldDraw(x,y) {
 	return isVisible(x,y) || isSeen(x,y);
 }
 
+function get_creatures_at(entities, x, y){
+	//for...in statement iterates over user-defined properties in addition to the array elements
+	for (let index = 0; index < entities.length; index++) {
+		const entity = entities[index];
+		if (entity.creature != null && entity.x == x && entity.y == y){
+			return entity;
+			}
+		}
+		return null;
+}
+
 function moveEntity(dx, dy, entity) {
-	if (eng.tileFunc(entity.x+dx, entity.y+dy).getChar() !== '.') {
+	//do we need to refresh FOV?
+	updateFOV = true;
+
+	var tx = entity.x + dx;
+	var ty = entity.y + dy;
+
+	//is it a wall?
+	if (eng.tileFunc(tx, ty).getChar() !== '.') {
+		updateFOV = false;
 		return;
 	}
+
+	//check for creatures
+	var target = get_creatures_at(entities, tx, ty);
+	if (target != null){
+		console.log("You kick " + target.name + " in the shins!");
+		//no need to refresh FOV
+		updateFOV = false;
+		return;
+	}
+
 	entity.x += dx;
 	entity.y += dy;
 }
@@ -132,11 +162,15 @@ function moveEntity(dx, dy, entity) {
 function spawnEntities() {
 	var x = 26;
 	var y = 6;
-	entities.push(new Entity(x,y, "t", 255,0,0));
+	let ent = new Entity(x,y, "thug")
+	ent.creature = new Creature();
+	entities.push(ent);
 
 	x = 10;
 	y = 22;
-	entities.push(new Entity(x,y, "t", 255,0,0));
+	ent = new Entity(x,y, "thug")
+	ent.creature = new Creature();
+	entities.push(ent);
 }
 
 // "Main loop"
@@ -147,7 +181,7 @@ function tick() {
 	var cam_x = player.x-term.cx;
 	var cam_y = player.y-term.cy;
 	//console.log("Cam: x: " + cam_x + " y: " + cam_y);
-	refreshVisibility();
+	if (updateFOV) { refreshVisibility(); }
 	eng.update(player.x, player.y); // Update tiles in viewport
 	term.put(AT, term.cx, term.cy); // Player character always centered in viewport
 	//draw entities

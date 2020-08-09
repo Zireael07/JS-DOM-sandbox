@@ -1,9 +1,8 @@
 class Entity {
-	constructor(x, y, char, color) {
+	constructor(x, y, name) {
 		this.x = x;
 		this.y = y;
-		this.char = char;
-		this.color = color;
+		this.name = name;
 	}
 
 	// move(dx, dy) {
@@ -16,9 +15,13 @@ class Entity {
 	// 	this.y += dy;
 	// }
 
-	draw() {
-		term.put(this.x, this.y, this.char, this.color);
-	}
+	// draw() {
+	// 	term.put(this.x, this.y, this.char, this.color);
+	// }
 }
 
-export {Entity}
+class Creature{
+    constructor(){}
+}
+
+export {Entity, Creature}
