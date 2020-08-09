@@ -251,16 +251,16 @@ function tick() {
 
 // Key press handler - movement & collision handling
 function onKeyDown(k) {
-	//var movedir = { x: 0, y: 0 }; // Movement vector
-	if (k === ut.KEY_LEFT || k === ut.KEY_H) moveEntity(-1, 0, player); //movedir.x = -1;
-	else if (k === ut.KEY_RIGHT || k === ut.KEY_L) moveEntity(1,0, player); //movedir.x = 1;
-	else if (k === ut.KEY_UP || k === ut.KEY_K) moveEntity(0,-1, player); //movedir.y = -1;
-	else if (k === ut.KEY_DOWN || k === ut.KEY_J) moveEntity(0,1, player); //movedir.y = 1;
-	//if (movedir.x === 0 && movedir.y === 0) return;
-	// var oldx = pl.x, oldy = pl.y;
-	// pl.x += movedir.x;
-	// pl.y += movedir.y;
-	// if (eng.tileFunc(pl.x, pl.y).getChar() !== '.') { pl.x = oldx; pl.y = oldy; }
+	if (k === ut.KEY_LEFT || k === ut.KEY_H) moveEntity(-1, 0, player);
+	else if (k === ut.KEY_RIGHT || k === ut.KEY_L) moveEntity(1,0, player);
+	else if (k === ut.KEY_UP || k === ut.KEY_K) moveEntity(0,-1, player);
+	else if (k === ut.KEY_DOWN || k === ut.KEY_J) moveEntity(0,1, player);
+	//diagonals
+	else if (k === ut.KEY_Y) moveEntity(-1,-1, player);
+	else if (k === ut.KEY_U) moveEntity(1,-1, player);
+	else if (k === ut.KEY_B) moveEntity(-1,1, player);
+	else if (k === ut.KEY_N) moveEntity(1,1, player);
+
 	tick();
 }
 
