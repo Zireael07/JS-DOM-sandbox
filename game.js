@@ -1,5 +1,6 @@
 import { Entity, Creature } from "./entity.js";
 import { createFOV } from "./fov.js";
+import { findPath } from "./astar.js"
 
 /*global ut */
 var term, eng; // Can't be initialized yet because DOM is not ready
@@ -133,11 +134,46 @@ function get_creatures_at(entities, x, y){
 		return null;
 }
 
+function distance_to(sx,sy, tx, ty){
+    let dx = tx - sx;
+    let dy = ty - sy;
+    return (Math.sqrt(dx ** 2 + dy ** 2));
+}
+
+function isBlocked(x,y) {
+	return eng.tileFunc(x, y).getChar() !== '.'
+}
+
+function move_astar(entity, tx, ty){
+	console.log("Calling astar...");
+	var astar = findPath(map, [entity.x, entity.y], [tx, ty], isBlocked);
+
+	if (!astar.length < 1){
+		// get the next point along the path (because #0 is our current position)
+		// it was already checked for walkability by astar so we don't need to do it again
+		// destructuring assignment to move the entity
+		[entity.x, entity.y] = astar[1]
+	}
+}
+
 //this avoids the need for PLAYER/ENEMY_TURN enum
 function enemiesMove() {
+	var target = player; //cache
     for (let entity of entities) {
         if (entity !== player) {
-            console.log(`The ${entity.name} ponders the meaning of its existence.`);
+			//console.log(`The ${entity.name} ponders the meaning of its existence.`);
+			// assume if we can see it, it can see us too
+			if (isVisible(entity.x, entity.y)) {
+				// move
+				if (distance_to(entity.x, entity.y, target.x, target.y) >= 2){
+					move_astar(entity, target.x, target.y);
+				}
+				//if we are adjacent, attack
+				else{
+					//this uses backticks!!!
+					console.log(`${entity.name} insults you!`);
+				}
+			}
         }
     }
 }
