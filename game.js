@@ -12,10 +12,10 @@ var updateFOV = false;
 
 //death
 function death_player(){
-    console.log(this.owner.name + " is DEAD!"); //, 'rgb(255,0,0)');
+    gameMessage(this.owner.name + " is DEAD!", 'rgb(255,0,0)');
 }
 function death_monster(){
-    console.log(this.owner.name + " is dead!"); //'rgb(127,127,127)');
+    gameMessage(this.owner.name + " is dead!", 'rgb(127,127,127)');
     //delete from game entities
     var index = entities.indexOf( this.owner );
     if (index !== -1) {
@@ -29,6 +29,7 @@ player.creature = new Creature(player, 20, 40, 30, death_player);
 var entities = [];
 
 var rng = null
+var messages = []
 
 var map = [
 	" #####             #####      ",
@@ -98,6 +99,24 @@ function getRenderTile(x,y) {
 	//paranoia
 	else {
 		return ut.NULLTILE;
+	}
+}
+
+//HUD
+function gameMessage(text, clr){
+	//store
+	messages.push([text, clr]);
+	//this is based on redblobgames
+	let messages_div = document.querySelector("#messages");
+	// draw
+	let line = document.createElement('div');
+	//textContent should be faster than innerHTML
+	line.textContent = text;
+	line.style.color = clr;
+	messages_div.appendChild(line);
+	//axe the first message if we exceed the limit
+	while (messages_div.children.length > 5) {
+		messages_div.removeChild(messages_div.children[0]);
 	}
 }
 
@@ -185,10 +204,10 @@ function takeDamage(target, amount) {
 function attack(attacker, defender) {
     let damage = rng.roller("1d6");
     if (damage > 0) {
-		console.log(`${attacker.name} attacks ${defender.name} for ${damage} hit points.`);
+		gameMessage(`${attacker.name} attacks ${defender.name} for ${damage} hit points.`, 'rgb(255,0,0)');
 		takeDamage(defender, damage);
     } else {
-        console.log(`${attacker.name} attacks ${defender.name} but does no damage.`);
+        gameMessage(`${attacker.name} attacks ${defender.name} but does no damage.`, 'rgb(255,255,255)');
     }
 }
 
@@ -206,7 +225,7 @@ function enemiesMove() {
 				}
 				//if we are adjacent, attack
 				else if (target.creature.hp > 0) {
-					//this uses backticks!!!
+					//this uses backticks!!! JS's format function
 					//console.log(`${entity.name} insults you!`);
 					attack(entity, player)
 				}
@@ -315,7 +334,7 @@ function onKeyDown(k) {
 function initGame() {
 	window.setInterval(tick, 50); // Animation
 	// Initialize Viewport, i.e. the place where the characters are displayed
-	term = new ut.Viewport(document.getElementById("game"), 80, 60, "dom"); //41, 25);
+	term = new ut.Viewport(document.getElementById("game"), 41, 25, "dom");
 	// Initialize Engine, i.e. the Tile manager
 	eng = new ut.Engine(term, getRenderTile, map[0].length, map.length); //w,h
 	//Initialize FOV

@@ -2,9 +2,24 @@
 
 .centerer {
 	text-align: center;
+	display: grid; /* Picked up from redblobgames, ensures other elements fit size */
+	justify-content: center; /* Centers the above */
 }
 
 #game {
 	font-size: 16px; /* This one determines tile size in our terminal */
 	background-color: #000;
+}
+
+#messages {
+	box-sizing: border-box;
+	font-family: "DejaVuSansMono", "DejaVu Sans Mono", monospace;
+    font-size: 0.8em;
+    height: 6em; /* 5 lines of text plus fudge*/
+    line-height: 1.0;
+    background: black;
+    color: white; /* Default - overwritten by gameMessage */
+    margin: 0;
+    padding: 0.5em 1em;
+    text-align: left;
 }
