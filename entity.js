@@ -3,6 +3,10 @@ class Entity {
 		this.x = x;
 		this.y = y;
 		this.name = name;
+		//optional components
+		this.creature = null;
+		this.item = null;
+		this.inventory = null;
 	}
 
 	// move(dx, dy) {
@@ -31,4 +35,17 @@ class Creature{
     }
 }
 
-export {Entity, Creature}
+class Item{
+    constructor(owner){
+		this.owner = owner;
+    }
+}
+
+class Inventory{
+    constructor(capacity){
+		this.capacity = capacity;
+		this.items = [];
+    }
+}
+
+export {Entity, Creature, Item, Inventory}

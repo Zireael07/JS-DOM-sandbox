@@ -1,4 +1,4 @@
-import { Entity, Creature } from "./entity.js";
+import { Entity, Creature, Inventory, Item } from "./entity.js";
 import { createFOV } from "./fov.js";
 import { findPath } from "./astar.js"
 
@@ -26,6 +26,7 @@ function death_monster(){
 
 var player = new Entity(3, 2, "Player");
 player.creature = new Creature(player, 20, 40, 30, death_player);
+player.inventory = new Inventory(26);
 var entities = [];
 
 var rng = null
@@ -72,6 +73,7 @@ var FLOOR = new ut.Tile('.', 255, 255, 255);
 //entities
 var AT = new ut.Tile("@", 255, 255, 255);
 var THUG = new ut.Tile("t", 255, 0, 0);
+var MED = new ut.Tile("!", 255, 0, 0);
 
 // Returns a Tile based on the char array map
 function getDungeonTile(x, y) {
@@ -215,7 +217,7 @@ function attack(attacker, defender) {
 function enemiesMove() {
 	var target = player; //cache
     for (let entity of entities) {
-        if (entity !== player) {
+        if (entity !== player && entity.creature != null) {
 			//console.log(`The ${entity.name} ponders the meaning of its existence.`);
 			// assume if we can see it, it can see us too
 			if (isVisible(entity.x, entity.y)) {
@@ -233,6 +235,20 @@ function enemiesMove() {
         }
     }
 }
+
+function add_item(item, inventory){
+	if (inventory.items.length > inventory.capacity){
+		return;
+	}
+	inventory.items.push(item);
+	//delete from game entities
+		var index = entities.indexOf( item );
+		if (index !== -1) {
+			entities.splice( index, 1 );
+		}
+	gameMessage(`You pick up ${item.name}`, 'rgb(255,255,255)');
+	}
+
 
 function moveEntity(dx, dy, entity) {
 	//if dead, do nothing
@@ -271,17 +287,40 @@ function moveEntity(dx, dy, entity) {
 	enemiesMove()
 }
 
+function pickupItem() {
+	//console.log("Pressed pickup");
+	for (let index = 0; index < entities.length; index++) {
+		const entity = entities[index];
+		if (entity.item != null && entity.x == player.x && entity.y == player.y){
+			add_item(entity, player.inventory);
+		break; //only pick up one item at once
+		}
+	}
+	//enemy turn
+	enemiesMove()
+}
+
 function spawnEntities() {
 	var x = 26;
 	var y = 6;
 	let ent = new Entity(x,y, "thug")
 	ent.creature = new Creature(ent, 5, 20,30, death_monster);
+	ent.tile = THUG;
 	entities.push(ent);
 
 	x = 10;
 	y = 22;
 	ent = new Entity(x,y, "thug")
 	ent.creature = new Creature(ent, 5, 20,30, death_monster);
+	ent.tile = THUG;
+	entities.push(ent);
+
+	//some items
+	x = 22;
+	y = 2;
+	ent = new Entity(x,y, "medkit");
+	ent.item = new Item(ent);
+	ent.tile = MED;
 	entities.push(ent);
 }
 
@@ -308,15 +347,13 @@ function tick() {
 		//draw in screen space
 		tilex = e.x - cam_x;
 		tiley = e.y - cam_y;
-		term.put(THUG, tilex, tiley);
+		term.put(e.tile, tilex, tiley);
 	}
 	term.render(); // Render
 }
 
 // Key press handler - movement & collision handling
 function onKeyDown(k) {
-
-
 	if (k === ut.KEY_LEFT || k === ut.KEY_H) moveEntity(-1, 0, player);
 	else if (k === ut.KEY_RIGHT || k === ut.KEY_L) moveEntity(1,0, player);
 	else if (k === ut.KEY_UP || k === ut.KEY_K) moveEntity(0,-1, player);
@@ -326,6 +363,7 @@ function onKeyDown(k) {
 	else if (k === ut.KEY_U) moveEntity(1,-1, player);
 	else if (k === ut.KEY_B) moveEntity(-1,1, player);
 	else if (k === ut.KEY_N) moveEntity(1,1, player);
+	else if (k === ut.KEY_G) pickupItem();
 
 	tick();
 }
