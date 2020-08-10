@@ -32,6 +32,8 @@ var entities = [];
 var rng = null
 var messages = []
 
+var inventoryOverlay;
+
 var map = [
 	" #####             #####      ",
 	" #...########      #...####   ",
@@ -300,6 +302,49 @@ function pickupItem() {
 	enemiesMove()
 }
 
+function clickFunction(button) {
+	inventoryOverlay.setVisibility(false); //close the inventory
+	console.log("Pressed button " + button.innerHTML);
+}
+
+//based on redblobgames
+function createInventoryOverlay() {
+    const overlay = document.querySelector("#inventory");
+    let visible = false;
+
+    function draw() {
+        let html = `<ul>`;
+        let empty = true;
+
+		let len = player.inventory.items.length;
+		for (var i = 0; i < len; ++i) {
+			var item = player.inventory.items[i];
+            html += `<li><button class="inv_button">${String.fromCharCode(65 + i)}</button> ${item.name}</li>`;
+			empty = false;
+        } //);
+        html += `</ul>`;
+        if (empty) {
+            html = `<div>Your inventory is empty. Press <kbd>ESC</kbd> to cancel.</div>${html}`;
+        } else {
+            html = `<div>Select an item to use it, or <kbd>ESC</kbd> to cancel.</div>${html}`;
+        }
+		overlay.innerHTML = html;
+		var button = document.querySelector(".inv_button");
+		//anonymous function
+		button.onclick = function() { clickFunction(button); }
+    }
+
+    return {
+        get visible() { return visible; },
+        setVisibility(visibility) {
+            visible = visibility;
+            overlay.classList.toggle('visible', visibility);
+            if (visible) draw();
+        },
+    };
+}
+
+
 function spawnEntities() {
 	var x = 26;
 	var y = 6;
@@ -352,6 +397,17 @@ function tick() {
 	term.render(); // Render
 }
 
+function showInventory() {
+	//var set = inventoryOverlay.visible? false : true;
+	if (inventoryOverlay.visible) {
+		inventoryOverlay.setVisibility(false);
+	}
+	else if (!inventoryOverlay.visible) {
+		inventoryOverlay.setVisibility(true);
+	}
+	//return;
+}
+
 // Key press handler - movement & collision handling
 function onKeyDown(k) {
 	if (k === ut.KEY_LEFT || k === ut.KEY_H) moveEntity(-1, 0, player);
@@ -364,7 +420,7 @@ function onKeyDown(k) {
 	else if (k === ut.KEY_B) moveEntity(-1,1, player);
 	else if (k === ut.KEY_N) moveEntity(1,1, player);
 	else if (k === ut.KEY_G) pickupItem();
-
+	else if (k === ut.KEY_I) showInventory();
 	tick();
 }
 
@@ -385,6 +441,7 @@ function initGame() {
 	rng = aleaPRNG();
 	// more game init
 	spawnEntities();
+	inventoryOverlay = createInventoryOverlay();
 	// engine: initialize input
 	ut.initInput(onKeyDown);
 }
