@@ -36,8 +36,9 @@ class Creature{
 }
 
 class Item{
-    constructor(owner){
+    constructor(owner, use_f=null){
 		this.owner = owner;
+		this.use_function = use_f;
     }
 }
 

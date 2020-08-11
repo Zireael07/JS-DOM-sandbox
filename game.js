@@ -302,9 +302,37 @@ function pickupItem() {
 	enemiesMove()
 }
 
-function clickFunction(button) {
+function heal(creature, amount){
+	if (creature.hp >= creature.max_hp){
+	    return;
+	}
+	//avoid overhealing
+	var amt = Math.min(amount, creature.max_hp-creature.hp);
+    creature.hp += amt;
+	gameMessage("Your wounds start to feel better!", 'rgb(0, 255, 0)');
+}
+
+function use_heal(entity){
+	heal(entity.creature, 4);
+}
+
+function use_item(item, user){
+	if (item.item.use_function == null) { return }
+	item.item.use_function(user);
+    
+    //delete from items
+    var index = user.inventory.items.indexOf( item );
+    if (index !== -1) {
+		user.inventory.items.splice( index, 1);
+    }
+    gameMessage("You have used " + item.name);
+}
+
+
+function clickFunction(button, item) {
 	inventoryOverlay.setVisibility(false); //close the inventory
 	console.log("Pressed button " + button.innerHTML);
+	use_item(item, player);
 }
 
 //based on redblobgames
@@ -319,19 +347,27 @@ function createInventoryOverlay() {
 		let len = player.inventory.items.length;
 		for (var i = 0; i < len; ++i) {
 			var item = player.inventory.items[i];
-            html += `<li><button class="inv_button">${String.fromCharCode(65 + i)}</button> ${item.name}</li>`;
+            html += `<li><button class="inv_button" }">${String.fromCharCode(65 + i)}</button> ${item.name}</li>`;
 			empty = false;
+			//not added yet!
+			//var button = document.querySelector(".inv_button");
         } //);
         html += `</ul>`;
         if (empty) {
-            html = `<div>Your inventory is empty. Press <kbd>ESC</kbd> to cancel.</div>${html}`;
+            html = `<div>Your inventory is empty. Press <kbd>I</kbd> again to cancel.</div>${html}`;
         } else {
-            html = `<div>Select an item to use it, or <kbd>ESC</kbd> to cancel.</div>${html}`;
+            html = `<div>Select an item to use it, or <kbd>I</kbd> again to cancel.</div>${html}`;
         }
 		overlay.innerHTML = html;
-		var button = document.querySelector(".inv_button");
-		//anonymous function
-		button.onclick = function() { clickFunction(button); }
+		//TODO: fold into the previous somehow?
+		for (var i = 0; i < len; ++i) {
+			var buttons = document.querySelectorAll(".inv_button");
+			for (var i=0; i < buttons.length; ++i) {
+				var button = buttons[i];
+				//anonymous function
+				button.onclick = function() { clickFunction(button, item); }
+			}
+		}
     }
 
     return {
@@ -364,7 +400,7 @@ function spawnEntities() {
 	x = 22;
 	y = 2;
 	ent = new Entity(x,y, "medkit");
-	ent.item = new Item(ent);
+	ent.item = new Item(ent, use_heal);
 	ent.tile = MED;
 	entities.push(ent);
 }
