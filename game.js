@@ -1,10 +1,12 @@
 import { Entity, Creature, Inventory, Item } from "./entity.js";
 import { createFOV } from "./fov.js";
 import { findPath } from "./astar.js"
+import {saveJS, loadJS} from "./save.js"
 
 /*global ut */
 var term, eng; // Can't be initialized yet because DOM is not ready
 
+/* our logic */
 var visible = null
 var seen = null
 var refreshFOV = null
@@ -84,6 +86,8 @@ function getDungeonTile(x, y) {
 	catch(err) { return ut.NULLTILE; }
 	if (t === '#') return WALL;
 	if (t === '.') return FLOOR;
+	//paranoia
+	if (t === "") return ut.NULLTILE;
 	return ut.NULLTILE;
 }
 
@@ -428,6 +432,10 @@ function tick() {
 		//draw in screen space
 		tilex = e.x - cam_x;
 		tiley = e.y - cam_y;
+		if (e.tile == null || e.tile == undefined) {
+			console.log("Tile for " + e + " is null!");
+			continue;
+		}
 		term.put(e.tile, tilex, tiley);
 	}
 	term.render(); // Render
@@ -444,6 +452,67 @@ function showInventory() {
 	//return;
 }
 
+//stubs that call an actual save/load functions
+export function saveGame() {
+	const saved = {
+		entities: entities,
+		player: player,
+		visible: visible,
+		seen: seen,
+		messages: messages,
+		map: map
+	}; 
+    saveJS(saved);
+}
+export function loadGame() {
+	console.log("Loading game...");
+    //load data
+	var Game_data = loadJS();
+	//boon of keeping all entities as data-only - no problems deserializing ;)
+	player = Game_data.player;
+	player.creature.death_function = death_player;
+	
+	messages = Game_data.messages;
+	//map = Game_data.map;
+	//those are sets, so need special handling
+    //clear 'em first
+    visible.clear();
+    seen.clear();
+    Game_data.visible.forEach(item => visible.add(item))
+    //Game.visible = Game_data.visible
+    Game_data.seen.forEach(item => seen.add(item))
+	//Game.seen = Game_data.seen
+	//set the RNG
+	rng = aleaPRNG();
+
+	//work around function loss
+    //Game.entities = Game_data.entities
+    entities = [];
+     for (let index = 0; index < Game_data.entities.length; index++) {
+		const e = Game_data.entities[index];
+		let ent = new Entity(0,0, "thug");
+		Object.assign(ent, e);
+		ent.tile = THUG;
+		if (e.item != null){
+			let i = new Item(ent);
+			Object.assign(i, e.item);
+			ent.item = i;
+			ent.tile = MED;
+		}
+		if (e.creature != null){
+			let c = new Creature(ent, 1, 1,1,death_monster);
+			Object.assign(c, e.creature);
+			c.owner = ent;
+			ent.creature = c;
+		}
+
+        entities.push(ent);
+    }
+
+	//force refresh
+	tick();
+}
+
 // Key press handler - movement & collision handling
 function onKeyDown(k) {
 	if (k === ut.KEY_LEFT || k === ut.KEY_H) moveEntity(-1, 0, player);
@@ -457,6 +526,9 @@ function onKeyDown(k) {
 	else if (k === ut.KEY_N) moveEntity(1,1, player);
 	else if (k === ut.KEY_G) pickupItem();
 	else if (k === ut.KEY_I) showInventory();
+	//save/load
+	else if (k === ut.KEY_S) saveGame();
+	else if (k === ut.KEY_R) loadGame();
 	tick();
 }
 
