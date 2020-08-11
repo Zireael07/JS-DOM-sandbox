@@ -1,4 +1,4 @@
-import { Entity, Creature, Inventory, Item } from "./entity.js";
+import { Entity, Creature, Inventory, Item, Equipment } from "./entity.js";
 import { createFOV } from "./fov.js";
 import { findPath } from "./astar.js"
 import {saveJS, loadJS} from "./save.js"
@@ -78,6 +78,7 @@ var FLOOR = new ut.Tile('.', 255, 255, 255);
 var AT = new ut.Tile("@", 255, 255, 255);
 var THUG = new ut.Tile("t", 255, 0, 0);
 var MED = new ut.Tile("!", 255, 0, 0);
+var KNIFE = new ut.Tile("/", 0, 255, 255);
 
 // Returns a Tile based on the char array map
 function getDungeonTile(x, y) {
@@ -210,7 +211,19 @@ function takeDamage(target, amount) {
 }
 
 function attack(attacker, defender) {
-    let damage = rng.roller("1d6");
+	let damage = rng.roller("1d6");
+	var bonuses = 0;
+	if (attacker.inventory != null){
+		var array = equipped_items(attacker.inventory);
+		for (let index = 0; index < array.length; index++) {
+			const element = array[index];
+			bonuses += element.equipment.attack;
+		}
+	}
+
+	damage += bonuses;
+
+
     if (damage > 0) {
 		gameMessage(`${attacker.name} attacks ${defender.name} for ${damage} hit points.`, 'rgb(255,0,0)');
 		takeDamage(defender, damage);
@@ -316,20 +329,28 @@ function heal(creature, amount){
 	gameMessage("Your wounds start to feel better!", 'rgb(0, 255, 0)');
 }
 
-function use_heal(entity){
-	heal(entity.creature, 4);
+function use_heal(item, user){
+	heal(user.creature, 4);
+	return true;
+}
+
+function use_equip(item, user){
+	toggle_equip(user, item.equipment);
+	return false;
 }
 
 function use_item(item, user){
 	if (item.item.use_function == null) { return }
-	item.item.use_function(user);
-    
-    //delete from items
-    var index = user.inventory.items.indexOf( item );
-    if (index !== -1) {
-		user.inventory.items.splice( index, 1);
-    }
-    gameMessage("You have used " + item.name);
+	var destroy_on_use = item.item.use_function(item, user);
+	
+	if (destroy_on_use) {
+		//delete from items
+		var index = user.inventory.items.indexOf( item );
+		if (index !== -1) {
+			user.inventory.items.splice( index, 1);
+		}
+		gameMessage("You have used " + item.name);
+	}
 }
 
 
@@ -337,6 +358,61 @@ function clickFunction(button, item) {
 	inventoryOverlay.setVisibility(false); //close the inventory
 	console.log("Pressed button " + button.innerHTML);
 	use_item(item, player);
+}
+
+// returns the equipment in a slot, or null if it's empty
+function get_equipped_in_slot(user, slot){
+	for (let index = 0; index < user.inventory.items.length; index++){
+		const obj = user.inventory.items[index];
+		if (obj.equipment != null && obj.equipment.slot == slot && obj.equipment.equipped){
+			return obj.equipment;
+		}
+	}
+	return null;
+}
+
+function equipped_items(inventory){
+	let list_equipped = [];
+	for (let index = 0; index < inventory.items.length; index++) {
+		const item = inventory.items[index];
+		if (item.equipment != null && item.equipment.equipped){
+			list_equipped.push(item);
+		}
+	}
+	return list_equipped;
+}
+
+function toggle_equip(actor, eq){
+    if (eq.equipped){
+        unequip(actor, eq);
+    }
+    else{
+        equip(actor, eq);
+    }
+}
+function equip(actor, eq){
+	var old_equipment = get_equipped_in_slot(actor, eq.slot);
+	if (old_equipment != null){
+		unequip(actor, old_equipment);
+	}
+	eq.equipped = true;
+	gameMessage("Item equipped", 'rgb(255,255,255)');
+
+};
+function unequip(actor, eq){
+	eq.equipped = false;
+	gameMessage("Took off item", 'rgb(255,255,255');
+};
+
+function display_name(entity){
+	if (entity.item){
+		if (entity.equipment && entity.equipment.equipped){
+			return entity.name + " (equipped)";
+		}
+		else{
+			return entity.name;
+		}
+	}
 }
 
 //based on redblobgames
@@ -351,7 +427,7 @@ function createInventoryOverlay() {
 		let len = player.inventory.items.length;
 		for (var i = 0; i < len; ++i) {
 			var item = player.inventory.items[i];
-            html += `<li><button class="inv_button" }">${String.fromCharCode(65 + i)}</button> ${item.name}</li>`;
+            html += `<li><button class="inv_button" }">${String.fromCharCode(65 + i)}</button> ${display_name(item)}</li>`;
 			empty = false;
 			//not added yet!
 			//var button = document.querySelector(".inv_button");
@@ -407,6 +483,12 @@ function spawnEntities() {
 	ent.item = new Item(ent, use_heal);
 	ent.tile = MED;
 	entities.push(ent);
+
+	ent = new Entity(3,3, "combat knife");
+	ent.item = new Item(ent, use_equip);
+	ent.tile = KNIFE;
+    ent.equipment = new Equipment(ent, "MAIN_HAND", 5);
+    entities.push(ent);
 }
 
 // "Main loop"
@@ -504,6 +586,10 @@ export function loadGame() {
 			Object.assign(c, e.creature);
 			c.owner = ent;
 			ent.creature = c;
+		}
+		if (e.equipment != null) {
+			//let i = new Equipment()
+			ent.tile = KNIFE;
 		}
 
         entities.push(ent);

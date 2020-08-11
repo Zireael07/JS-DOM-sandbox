@@ -7,6 +7,7 @@ class Entity {
 		this.creature = null;
 		this.item = null;
 		this.inventory = null;
+		this.equipment = null;
 	}
 
 	// move(dx, dy) {
@@ -49,4 +50,13 @@ class Inventory{
     }
 }
 
-export {Entity, Creature, Item, Inventory}
+class Equipment{
+    constructor(owner, slot, att){
+        this.owner = owner;
+        this.slot = slot;
+        this.equipped = false;
+        this.attack = att;
+    }
+}
+
+export {Entity, Creature, Item, Inventory, Equipment}
