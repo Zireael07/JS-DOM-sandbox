@@ -35,6 +35,7 @@ var rng = null
 var messages = []
 
 var inventoryOverlay;
+var mouse = null
 
 var map = [
 	" #####             #####      ",
@@ -618,6 +619,43 @@ function onKeyDown(k) {
 	tick();
 }
 
+//mouse/touch
+function getMousePos(e) {
+    return {x:e.clientX,y:e.clientY};
+}
+
+function relPos(e, gm) {
+	return {x: e.clientX-gm.offsetLeft, y: e.clientY-gm.offsetTop};
+}
+
+
+function termPos(e, gm) {
+	var rel = relPos(e, gm);
+	//hack
+	var gm_s = gm.getBoundingClientRect();
+	//loads of rounding to eliminate errors
+	var tile_w = Math.round(Math.round(gm_s.width)/term.w);
+	var tile_h = Math.round(Math.round(gm_s.height)/term.h);
+	//console.log(tile_w + " " + tile_h);
+	var tx = Math.floor(rel.x/tile_w);
+	var ty = Math.floor(rel.y/tile_h);
+	//for some reason, tx is off by one
+	tx = tx+1
+
+	//term.tw and term.th should be set by DOMRenderer's updateStyle() but it's not :(
+	return {x: tx, y: ty}
+}
+
+function worldPos(t_pos){
+	//console.log("Term pos: x" + t_pos.x + "y: " + t_pos.y);
+	// term.cx and term.cy always == player position
+	// this comes out to top left coordinates
+	var cam_x = player.x-term.cx;
+	var cam_y = player.y-term.cy;
+	//console.log("Cam pos: x: " + cam_x + "y: " + cam_y);
+	return {x: t_pos.x+cam_x, y: t_pos.y+cam_y}
+}
+
 //basic stuff
 function initGame() {
 	window.setInterval(tick, 50); // Animation
@@ -638,6 +676,19 @@ function initGame() {
 	inventoryOverlay = createInventoryOverlay();
 	// engine: initialize input
 	ut.initInput(onKeyDown);
+	// mouse and touch input
+	var gm = document.getElementById("game");
+	gm.addEventListener('mousedown', e => { 
+		//var m_pos = getMousePos(e);
+		//console.log("Pressed mouse @ x: " + m_pos.x + " y: " + m_pos.y);
+		//var r_pos = relPos(e, gm);
+		//console.log("Position relative to gm: x: " + r_pos.x + " y:" + r_pos.y);
+		mouse = termPos(e, gm);
+		//console.log("Term pos: x: " + t_pos.x + " y: " + t_pos.y);
+		var w_pos = worldPos(mouse);
+		console.log("World pos: x " + w_pos.x + " y: " + w_pos.y);
+	});
+	gm.addEventListener('mouseup', e => { } );
 }
 
 // Initialize stuff
