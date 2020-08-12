@@ -8,8 +8,19 @@
     cursor: default;
 }
 
+/* use css media queries to figure out whether we're touch or not */
+@media (pointer:coarse) {
+    #game { font-size: 20px };
+}
+
+@media (pointer:fine) {
+    #game { font-size: 16px };
+}
+
+
 #game {
-	font-size: 16px; /* This one determines tile size in our terminal */
+    /* CSS specificity hits us here, we need to define it above in both cases */
+	/*font-size: 16px; /* This one determines tile size in our terminal */
     background-color: #000;
     grid-area: game;
     z-index: 1;
