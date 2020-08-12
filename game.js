@@ -500,6 +500,8 @@ function tick() {
 	var cam_x = player.x-term.cx;
 	var cam_y = player.y-term.cy;
 	//console.log("Cam: x: " + cam_x + " y: " + cam_y);
+	
+	//render here
 	if (updateFOV) { refreshVisibility(); }
 	eng.update(player.x, player.y); // Update tiles in viewport
 	term.put(AT, term.cx, term.cy); // Player character always centered in viewport
@@ -520,6 +522,12 @@ function tick() {
 			continue;
 		}
 		term.put(e.tile, tilex, tiley);
+		// draw highlight under clicked tile
+		if (mouse) {
+			var t = term.get(mouse.x, mouse.y);
+			//dark highlight (one of the default colors offered by CSS picker)
+			term.put(new ut.Tile(t.ch, t.r, t.g, t.b, 63, 81, 181), mouse.x, mouse.y);
+		}
 	}
 	term.render(); // Render
 }
@@ -689,6 +697,10 @@ function initGame() {
 		console.log("World pos: x " + w_pos.x + " y: " + w_pos.y);
 	});
 	gm.addEventListener('mouseup', e => { } );
+	gm.addEventListener('mousemove', e => { 
+		e.preventDefault();
+		mouse = termPos(e, gm);
+	});
 }
 
 // Initialize stuff

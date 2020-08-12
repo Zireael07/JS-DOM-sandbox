@@ -5,6 +5,7 @@
 	display: grid; /* Picked up from redblobgames, ensures other elements fit size */
     justify-content: center; /* Centers the above */
     grid-template-areas: "game" "message-area";
+    cursor: default;
 }
 
 #game {
