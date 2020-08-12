@@ -643,14 +643,11 @@ function termPos(e, gm) {
 	var rel = relPos(e, gm);
 	//hack
 	var gm_s = gm.getBoundingClientRect();
-	//loads of rounding to eliminate errors
 	var tile_w = (gm_s.width)/term.w;
 	var tile_h = (gm_s.height)/term.h;
 	//console.log(tile_w + " " + tile_h);
 	var tx = Math.floor(rel.x/tile_w);
 	var ty = Math.floor(rel.y/tile_h);
-	//for some reason, tx is off by one
-	//tx = tx+1
 
 	//term.tw and term.th should be set by DOMRenderer's updateStyle() but it's not :(
 	return {x: tx, y: ty}
@@ -677,7 +674,7 @@ function onClickH(w_pos) {
 	var dir_x = w_pos.x-player.x
 	var dir_y = w_pos.y-player.y
 	//console.log(dir_x + " " + dir_y);
-	if (dir_x < 2 && dir_y < 2){
+	if (dir_x < 2 && dir_x > -2 && dir_y < 2 && dir_y > -2){
 		moveEntity(dir_x, dir_y, player);
 	}
 	tick();
