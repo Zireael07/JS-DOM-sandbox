@@ -522,13 +522,15 @@ function tick() {
 			continue;
 		}
 		term.put(e.tile, tilex, tiley);
-		// draw highlight under clicked tile
-		if (mouse) {
-			var t = term.get(mouse.x, mouse.y);
-			//dark highlight (one of the default colors offered by CSS picker)
-			term.put(new ut.Tile(t.ch, t.r, t.g, t.b, 63, 81, 181), mouse.x, mouse.y);
-		}
 	}
+
+	// draw highlight under clicked tile
+	if (mouse) {
+		var t = term.get(mouse.x, mouse.y);
+		//dark highlight (one of the default colors offered by CSS picker)
+		term.put(new ut.Tile(t.ch, t.r, t.g, t.b, 63, 81, 181), mouse.x, mouse.y);
+	}
+
 	term.render(); // Render
 }
 
@@ -664,6 +666,21 @@ function worldPos(t_pos){
 	return {x: t_pos.x+cam_x, y: t_pos.y+cam_y}
 }
 
+function onClickH(w_pos) {
+	//ignore clicks outside of map
+	if (w_pos.x < 0 || w_pos.y < 0 || w_pos.x > map[0].length || w_pos.y > map.length) {
+		return;
+	} 
+
+	//move player
+	if (distance_to(player.x, player.x, w_pos.x, w_pos.y < 2)) {
+		var dir_x = w_pos.x-player.x
+		var dir_y = w_pos.y-player.y
+		moveEntity(dir_x, dir_y, player);
+	}
+	tick();
+}
+
 //basic stuff
 function initGame() {
 	window.setInterval(tick, 50); // Animation
@@ -687,6 +704,7 @@ function initGame() {
 	// mouse and touch input
 	var gm = document.getElementById("game");
 	gm.addEventListener('mousedown', e => { 
+		e.preventDefault();
 		//var m_pos = getMousePos(e);
 		//console.log("Pressed mouse @ x: " + m_pos.x + " y: " + m_pos.y);
 		//var r_pos = relPos(e, gm);
@@ -694,12 +712,15 @@ function initGame() {
 		mouse = termPos(e, gm);
 		//console.log("Term pos: x: " + t_pos.x + " y: " + t_pos.y);
 		var w_pos = worldPos(mouse);
-		console.log("World pos: x " + w_pos.x + " y: " + w_pos.y);
+		//console.log("World pos: x " + w_pos.x + " y: " + w_pos.y);
+		onClickH(w_pos);
 	});
-	gm.addEventListener('mouseup', e => { } );
+	gm.addEventListener('mouseup', e => { e.preventDefault() } );
 	gm.addEventListener('mousemove', e => { 
 		e.preventDefault();
 		mouse = termPos(e, gm);
+		//console.log(mouse);
+		tick();
 	});
 }
 
