@@ -697,10 +697,11 @@ function fitTerm(view) {
 	var gm = document.getElementById("game");
 	var font_s = window.getComputedStyle(gm).fontSize
 	console.log("Font s: " + font_s);
+	font_s = parseFloat(font_s)*1.2 //take into account the 1.2ch style
 	//ratio for DejaVuSans is 9.6:16 or 12:20
 	//calculate instead of hardcoding
-	var tile_w = (parseFloat(font_s)*12)/20;
-	var tile_h = parseFloat(font_s);
+	var tile_w = (font_s*12)/20;
+	var tile_h = font_s;
 
 	//deduct margins
 	var num_w = Math.floor((view.w-16)/tile_w);
