@@ -704,6 +704,10 @@ function fitTerm(view) {
 
 	//deduct margins
 	var num_w = Math.floor((view.w-16)/tile_w);
+	//reasonable upper limits for very big screens
+	if (num_w > 60) {
+		num_w = 60
+	}
 	return num_w
 }
 
