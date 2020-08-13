@@ -16,6 +16,7 @@ ut.DOMRenderer = function(view) {
 		this.colors[j] = new Array(view.w);
 		for (var i = 0; i < view.w; ++i) {
 			this.spans[j][i] = document.createElement("div");
+			this.spans[j][i].style.width = "1ch";
 			view.elem.appendChild(this.spans[j][i]);
 		}
 		// Line break
@@ -36,7 +37,8 @@ ut.DOMRenderer.prototype.updateStyle = function(s) {
 	var w = this.view.w, h = this.view.h;
 	for (var j = 0; j < h; ++j) {
 		for (var i = 0; i < w; ++i) {
-			this.spans[j][i].style.width = this.tw + "px";
+			//this.spans[j][i].style.width = this.tw + "px";
+			this.spans[j][i].style.width = "1ch";
 		}
 	}
 };
