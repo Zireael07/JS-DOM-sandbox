@@ -1,2 +1,0 @@
-style.css game /* This one determines tile size in our terminal */
-unicodetiles.js renderer selection needs commented out, and effects in getTile()

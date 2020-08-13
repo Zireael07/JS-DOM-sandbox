@@ -680,11 +680,51 @@ function onClickH(w_pos) {
 	tick();
 }
 
+// all modern browsers support vw/wh units
+// taken from: https://stackoverflow.com/a/16389226
+function getBrowserViewportDimensions() {
+	var objNode = document.createElement("div");
+	objNode.style.width  = "100vw";
+	objNode.style.height = "100vh";
+	document.body.appendChild(objNode);
+	var intViewportWidth  = objNode.offsetWidth;
+	var intViewportHeight = objNode.offsetHeight;
+	document.body.removeChild(objNode);
+	return {w: intViewportWidth, h: intViewportHeight}
+}
+
+function fitTerm(view) {
+	var gm = document.getElementById("game");
+	var font_s = window.getComputedStyle(gm).fontSize
+	console.log("Font s: " + font_s);
+	//ratio for DejaVuSans is 9.6:16 or 12:20
+	//calculate instead of hardcoding
+	var tile_w = (parseFloat(font_s)*12)/20;
+	var tile_h = parseFloat(font_s);
+
+	//deduct margins
+	var num_w = Math.floor((view.w-16)/tile_w);
+	return num_w
+}
+
 //basic stuff
 function initGame() {
 	window.setInterval(tick, 50); // Animation
+
+	var term_size = {w:41, h:25};
+	//fit to screen width
+	var b_viewport = getBrowserViewportDimensions();
+	//debug
+	gameMessage("vw: " + b_viewport.w + " wh: " + b_viewport.h)
+	var calcTermSize = fitTerm(b_viewport);
+	term_size.w = calcTermSize
+
+	//debug
+	gameMessage("Term: w" + term_size.w + " h " + term_size.h);
+
 	// Initialize Viewport, i.e. the place where the characters are displayed
-	term = new ut.Viewport(document.getElementById("game"), 41, 25, "dom");
+	term = new ut.Viewport(document.getElementById("game"), term_size.w, term_size.h, "dom"); //w, h
+	console.log("Term: " + term.w, term.h);
 	// Initialize Engine, i.e. the Tile manager
 	eng = new ut.Engine(term, getRenderTile, map[0].length, map.length); //w,h
 	//Initialize FOV
@@ -721,9 +761,11 @@ function initGame() {
 		//console.log(mouse);
 		tick();
 	});
+	//debug
+	//gameMessage("Window width: " + window.outerWidth +  window.outerHeight+ " height" + )
 }
 
 // Initialize stuff
 window.onload = function() {
-	initGame()
+	initGame();
 }
