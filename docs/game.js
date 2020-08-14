@@ -37,38 +37,39 @@ var messages = []
 var inventoryOverlay;
 var mouse = null
 
-var map = [
-	" #####             #####      ",
-	" #...########      #...####   ",
-	" #..........#      #......#   ",
-	" #...######.#      #..###.#   ",
-	" #####    #.#      ######.####",
-	"          #.#          #.....#",
-	"          #.#          #.....#",
-	"          #.############.....#",
-	"          #..................#",
-	"          ####.###############",
-	"##########   #.#     #....#   ",
-	"#........##  #.#     #.#..#   ",
-	"#..####...#  #.#     #.#..#   ",
-	"#.........#  #.#     #.###### ",
-	"#.........#  #.#     #......# ",
-	"##.########  #.#     #......# ",
-	" #.#         #.#     #####.## ",
-	" #.#         #.#         #.#  ",
-	" #.#   #######.#         #.#  ",
-	" #.#   #.......#         #.#  ",
-	" #.#   #.....#.#         #.#  ",
-	" #.#   #.....#.#         #.#  ",
-	" #.#   #.....#.#         #.#  ",
-	" #.#   #.....#.#         #.#  ",
-	" #.#   #######.#         #.#  ",
-	" #.#         #.###########.#  ",
-	" #.#         #.............#  ",
-	" #.#############.###########  ",
-	" #...............#            ",
-	" #################            "
-];
+var map = []
+// var map = [
+// 	" #####             #####      ",
+// 	" #...########      #...####   ",
+// 	" #..........#      #......#   ",
+// 	" #...######.#      #..###.#   ",
+// 	" #####    #.#      ######.####",
+// 	"          #.#          #.....#",
+// 	"          #.#          #.....#",
+// 	"          #.############.....#",
+// 	"          #..................#",
+// 	"          ####.###############",
+// 	"##########   #.#     #....#   ",
+// 	"#........##  #.#     #.#..#   ",
+// 	"#..####...#  #.#     #.#..#   ",
+// 	"#.........#  #.#     #.###### ",
+// 	"#.........#  #.#     #......# ",
+// 	"##.########  #.#     #......# ",
+// 	" #.#         #.#     #####.## ",
+// 	" #.#         #.#         #.#  ",
+// 	" #.#   #######.#         #.#  ",
+// 	" #.#   #.......#         #.#  ",
+// 	" #.#   #.....#.#         #.#  ",
+// 	" #.#   #.....#.#         #.#  ",
+// 	" #.#   #.....#.#         #.#  ",
+// 	" #.#   #.....#.#         #.#  ",
+// 	" #.#   #######.#         #.#  ",
+// 	" #.#         #.###########.#  ",
+// 	" #.#         #.............#  ",
+// 	" #.#############.###########  ",
+// 	" #...............#            ",
+// 	" #################            "
+// ];
 
 // The tile palette is precomputed in order to not have to create
 // thousands of Tiles on the fly.
@@ -178,6 +179,7 @@ function get_creatures_at(entities, x, y){
 		return null;
 }
 
+//math
 function distance_to(sx,sy, tx, ty){
     let dx = tx - sx;
     let dy = ty - sy;
@@ -727,6 +729,24 @@ function initGame() {
 	//debug
 	gameMessage("Term: w" + term_size.w + " h " + term_size.h);
 
+	//RNG
+	rng = aleaPRNG();
+
+	//generate map
+	var simplex_map = new SimplexNoise(rng);
+	var block, i,j;
+	map = []
+	// unicodetiles.js uses [y][x] indexing, so needs must...
+	for (j = 0; j < 31; ++j) {
+		map.push([]);
+		for (i = 0; i < 31; ++i) {
+			//var bg = convertNoise(simplex_neb.noise(i*0.05,j*0.05));
+			var bg = simplex_map.noise(i*0.05, j*0.05);
+			block = bg > 0.85 ? '#' : '.' //JS ternary
+			map[j][i] = block
+		}
+	}
+
 	// Initialize Viewport, i.e. the place where the characters are displayed
 	term = new ut.Viewport(document.getElementById("game"), term_size.w, term_size.h, "dom"); //w, h
 	console.log("Term: " + term.w, term.h);
@@ -738,8 +758,7 @@ function initGame() {
 	setupFOV();
 	//use fov in engine
 	eng.setMaskFunc(shouldDraw);
-	//RNG
-	rng = aleaPRNG();
+
 	// more game init
 	spawnEntities();
 	inventoryOverlay = createInventoryOverlay();

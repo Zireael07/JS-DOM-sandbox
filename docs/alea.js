@@ -68,6 +68,9 @@ function aleaPRNG() {
             return s2 = t - ( c = t | 0 );
         };
 
+        /* alias for simplex to work */
+        random.random = random;
+
         /* public: return a 53-bit fraction in the range [0, 1] */
         random.double = function() {
             return random() + ( random() * 0x200000 | 0 ) * 1.1102230246251565e-16; // 2^-53
