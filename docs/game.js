@@ -79,11 +79,14 @@ var mapa = [] //'map' is reserved in JS
 // tiles
 var WALL = new ut.Tile('▒', 200, 200, 200);
 var FLOOR = new ut.Tile('.', 255, 255, 255);
+var GRASS = new ut.Tile(',', 0, 255, 0);
 //entities
 var AT = new ut.Tile("@", 255, 255, 255);
 var THUG = new ut.Tile("t", 255, 0, 0);
 var MED = new ut.Tile("!", 255, 0, 0);
 var KNIFE = new ut.Tile("/", 0, 255, 255);
+
+var unblocked_tiles = ['.', ',']
 
 // Returns a Tile based on the char array map
 function getDungeonTile(x, y) {
@@ -92,6 +95,7 @@ function getDungeonTile(x, y) {
 	catch(err) { return ut.NULLTILE; }
 	if (t === '#') return WALL;
 	if (t === '.') return FLOOR;
+	if (t === ',') return GRASS;
 	//paranoia
 	if (t === "") return ut.NULLTILE;
 	return ut.NULLTILE;
@@ -137,7 +141,9 @@ function gameMessage(text, clr){
 //FOV functions here
 //shortcut that will make it easier to extend later
 function isOpaque(x,y) {
-	return eng.tileFunc(x, y).getChar() !== '.'
+	//FIXME: clunky!
+	return eng.tileFunc(x, y).getChar() !== unblocked_tiles[0] && eng.tileFunc(x, y).getChar() !== unblocked_tiles[1]
+	//return eng.tileFunc(x, y).getChar() !== '.'
 }
 
 function setupFOV() {
@@ -196,7 +202,8 @@ function convertNoise(value) {
 }
 
 function isBlocked(x,y) {
-	return eng.tileFunc(x, y).getChar() !== '.'
+	//FIXME: clunky!
+	return eng.tileFunc(x, y).getChar() !== unblocked_tiles[0] && eng.tileFunc(x, y).getChar() !== unblocked_tiles[1]
 }
 
 function move_astar(entity, tx, ty){
@@ -296,7 +303,8 @@ function moveEntity(dx, dy, entity) {
 	var ty = entity.y + dy;
 
 	//is it a wall?
-	if (eng.tileFunc(tx, ty).getChar() !== '.') {
+	if (isBlocked(tx, ty)){
+	//if (eng.tileFunc(tx, ty).getChar() !== '.') {
 		updateFOV = false;
 		return;
 	}

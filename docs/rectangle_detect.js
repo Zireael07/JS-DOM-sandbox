@@ -7,11 +7,11 @@
     //num_floors = [[0 for _ in range(len(inc_map[0]))] for _ in range(len(inc_map))]
     num_floors = [];
     //unicodetiles.js indexes as [y][x]
-    for (x = 0; x <= inc_map[0].length; x++){
+    for (x = 0; x < inc_map[0].length; x++){
     //for (x = i = 0, ref = inc_map.length; (0 <= ref ? i <= ref : i >= ref); x = 0 <= ref ? ++i : --i) {
       num_floors.push([]);
       //for (y = j = 0, ref1 = inc_map[0].length; (0 <= ref1 ? j <= ref1 : j >= ref1); y = 0 <= ref1 ? ++j : --j) {
-      for (y = 0; y <= inc_map.length; y++){
+      for (y = 0; y < inc_map.length; y++){
         num_floors[x].push(0);
       }
     }
@@ -30,7 +30,7 @@
         add = y === 0 ? 0 : num_floors[north[0]][north[1]];
         
         //console.log("North: " + north)
-        num_floors[x][y] = inc_map[x][y] === '.' ? 1 + add : 0;
+        num_floors[x][y] = inc_map[y][x] === '.' ? 1 + add : 0;
       }
     }
     return num_floors;
@@ -96,20 +96,13 @@
   function debug_rect(rect, mapa) {
     var results, x, y;
   //console.log(rect)
-    results = [];
-    //for (x = i = ref = rect.x1, ref1 = rect.x2; (ref <= ref1 ? i <= ref1 : i >= ref1); x = ref <= ref1 ? ++i : --i) {
-    for (x = rect.x1; x <= rect.x2; x++){
-        // results.push((function() {
-        // var j, ref2, ref3, results1;
-        // results1 = [];
-        //for (y = j = ref2 = rect.y1, ref3 = rect.y2; (ref2 <= ref3 ? j <= ref3 : j >= ref3); y = ref2 <= ref3 ? ++j : --j) {
-        for (y = rect.y1; y <= rect.y2; y++){
-          results1.push(mapa[x][y] = ',');
+    //results = [];
+    // unicodetiles indexes as [y][x]
+    for (y = rect.y1; y <= rect.y2; y++){
+        for (x = rect.x1; x <= rect.x2; x++){    
+          mapa[y][x] = ','
         }
-        //return results1;
-      } //)());
-    //}
-    return results;
+    }
   };
   
   function apply_rectangle_detection(mapa) {
@@ -117,7 +110,7 @@
     // add to submaps
     //level.submaps.push(rect);
     //console.log(level.submaps);
-    //debug_rect(rect, mapa);
+    debug_rect(rect, mapa);
     //console.log level.mapa
     //return level; // for chaining
   };
