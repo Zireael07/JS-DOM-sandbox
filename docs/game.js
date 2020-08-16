@@ -762,6 +762,7 @@ function initGame() {
 		constructor(mapa) {
 		  this.mapa = mapa;
 		  this.submaps = [];
+		  this.rooms = [];
 		}
 	  
 	  };
@@ -783,6 +784,7 @@ function initGame() {
 	level = new Level(mapa)
 	//rectangle detect
 	apply_rectangle_detection(level);
+	map_create(level);
 
 	// Initialize Viewport, i.e. the place where the characters are displayed
 	term = new ut.Viewport(document.getElementById("game"), term_size.w, term_size.h, "dom"); //w, h
