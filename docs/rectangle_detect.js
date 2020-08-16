@@ -105,14 +105,14 @@
     }
   };
   
-  function apply_rectangle_detection(mapa) {
-    var rect = run_rectangle_detection(mapa);
+  function apply_rectangle_detection(level) {
+    var rect = run_rectangle_detection(level.mapa);
     // add to submaps
-    //level.submaps.push(rect);
-    //console.log(level.submaps);
-    debug_rect(rect, mapa);
+    level.submaps.push(rect);
+    console.log(level.submaps);
+    debug_rect(rect, level.mapa);
     //console.log level.mapa
-    //return level; // for chaining
+    return level; // for chaining
   };
   
   export { apply_rectangle_detection };

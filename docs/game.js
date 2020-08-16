@@ -39,7 +39,8 @@ var messages = []
 var inventoryOverlay;
 var mouse = null
 
-var mapa = [] //'map' is reserved in JS
+var level = null
+//var mapa = [] //'map' is reserved in JS
 
 // var map = [
 // 	" #####             #####      ",
@@ -91,7 +92,7 @@ var unblocked_tiles = ['.', ',']
 // Returns a Tile based on the char array map
 function getDungeonTile(x, y) {
 	var t = "";
-	try { t = mapa[y][x]; }
+	try { t = level.mapa[y][x]; }
 	catch(err) { return ut.NULLTILE; }
 	if (t === '#') return WALL;
 	if (t === '.') return FLOOR;
@@ -148,8 +149,8 @@ function isOpaque(x,y) {
 
 function setupFOV() {
 	refreshFOV = createFOV(
-		mapa[0].length, 
-		mapa.length,
+		level.mapa[0].length, 
+		level.mapa.length,
 		(x, y) => revealTile(x, y),
 		(x, y) => isOpaque(x, y)
 	  );
@@ -208,7 +209,7 @@ function isBlocked(x,y) {
 
 function move_astar(entity, tx, ty){
 	console.log("Calling astar...");
-	var astar = findPath(mapa, [entity.x, entity.y], [tx, ty], isBlocked);
+	var astar = findPath(level.mapa, [entity.x, entity.y], [tx, ty], isBlocked);
 
 	if (!astar.length < 1){
 		// get the next point along the path (because #0 is our current position)
@@ -572,7 +573,7 @@ export function saveGame() {
 		visible: visible,
 		seen: seen,
 		messages: messages,
-		mapa: mapa
+		level: level
 	}; 
     saveJS(saved);
 }
@@ -684,7 +685,7 @@ function worldPos(t_pos){
 
 function onClickH(w_pos) {
 	//ignore clicks outside of map
-	if (w_pos.x < 0 || w_pos.y < 0 || w_pos.x > mapa[0].length || w_pos.y > mapa.length) {
+	if (w_pos.x < 0 || w_pos.y < 0 || w_pos.x > level.mapa[0].length || w_pos.y > level.mapa.length) {
 		return;
 	} 
 
@@ -752,8 +753,18 @@ function initGame() {
 	//generate map
 	var simplex_map = new SimplexNoise(rng);
 	var block, i,j;
+
+	class Level {
+		constructor(mapa) {
+		  this.mapa = mapa;
+		  this.submaps = [];
+		}
+	  
+	  };
+	  
+	
 	//'map' is reserved in JS
-	mapa = []
+	var mapa = []
 	// unicodetiles.js uses [y][x] indexing, so needs must...
 	for (j = 0; j < 31; ++j) {
 		mapa.push([]);
@@ -765,8 +776,9 @@ function initGame() {
 		}
 	}
 
+	level = new Level(mapa)
 	//rectangle detect
-	apply_rectangle_detection(mapa);
+	apply_rectangle_detection(level);
 
 	// Initialize Viewport, i.e. the place where the characters are displayed
 	term = new ut.Viewport(document.getElementById("game"), term_size.w, term_size.h, "dom"); //w, h
