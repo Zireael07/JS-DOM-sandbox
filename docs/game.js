@@ -2,8 +2,10 @@ import { Entity, Creature, Inventory, Item, Equipment } from "./entity.js";
 import { createFOV } from "./fov.js";
 import { findPath } from "./astar.js"
 import {saveJS, loadJS} from "./save.js"
+import { State } from './game_vars.js'
 
 import { apply_rectangle_detection } from './rectangle_detect.js';
+import { map_create } from './bsp_map.js';
 
 /*global ut */
 var term, eng; // Can't be initialized yet because DOM is not ready
@@ -749,6 +751,8 @@ function initGame() {
 
 	//RNG
 	rng = aleaPRNG();
+	//global game state
+	State.rng = rng;
 
 	//generate map
 	var simplex_map = new SimplexNoise(rng);
