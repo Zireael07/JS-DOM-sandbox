@@ -140,6 +140,14 @@ function aleaPRNG() {
             return total;
         };
 
+        /* return randomly picked item */
+        random.getItem = function(array) {
+            if (!array.length) {
+                return null;
+            }
+            return array[Math.floor(random() * array.length)];
+        }
+
         /* public: seeding function */
         random.seed = function() { 
             _initState( Array.prototype.slice.call( arguments ) );
