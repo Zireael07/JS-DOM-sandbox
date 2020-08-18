@@ -53,7 +53,7 @@
   };
   
   function sort_fun(a, b) {
-    return a - b;
+    return b[0] - a[0]; //explicitly sort by area, see max_rectangle_hist.js
   };
   
   // step two of finding rectangle of floor in matrix
@@ -68,7 +68,10 @@
       //console.log("Index: " + y)
       //console.log(floors[y])
       rect = max_rectangle_histogram(floors[y], y);
-      rects.push(rect);
+      // some rects can turn out null
+      if (rect != null) {
+        rects.push(rect);
+      }
     }
     // this sorts in descending order
     sorted = rects.sort(sort_fun);

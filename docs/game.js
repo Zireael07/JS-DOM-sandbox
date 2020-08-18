@@ -772,9 +772,9 @@ function initGame() {
 	//'map' is reserved in JS
 	var mapa = []
 	// unicodetiles.js uses [y][x] indexing, so needs must...
-	for (j = 0; j < 31; ++j) {
+	for (j = 0; j < 31; j++) {
 		mapa.push([]);
-		for (i = 0; i < 31; ++i) {
+		for (i = 0; i < 31; i++) {
 			//var bg = convertNoise(simplex_neb.noise(i*0.05,j*0.05));
 			var bg = simplex_map.noise(i*0.05, j*0.05);
 			block = bg > 0.85 ? '#' : '.' //JS ternary
