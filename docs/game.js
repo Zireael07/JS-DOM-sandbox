@@ -6,6 +6,7 @@ import { State } from './game_vars.js'
 
 import { apply_rectangle_detection } from './rectangle_detect.js';
 import { map_create } from './bsp_map.js';
+import { random_free_tile } from './map_common.js';
 
 /*global ut */
 var term, eng; // Can't be initialized yet because DOM is not ready
@@ -785,6 +786,11 @@ function initGame() {
 	//rectangle detect
 	apply_rectangle_detection(level);
 	map_create(level);
+
+	//move player to free tile
+	var pos = random_free_tile(level.mapa);
+	player.x = pos[0]
+	player.y = pos[1]
 
 	// Initialize Viewport, i.e. the place where the characters are displayed
 	term = new ut.Viewport(document.getElementById("game"), term_size.w, term_size.h, "dom"); //w, h

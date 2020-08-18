@@ -1,3 +1,5 @@
+import { State } from './game_vars.js'
+
 class Rect {
     constructor(x, y, w, h) {
       this.x1 = x;
@@ -31,11 +33,13 @@ class Rect {
   function get_free_tiles(inc_map) {
     var free_tiles, max_x, max_y, x, y;
     free_tiles = [];
-    max_y = inc_map[0].length - 1;
-    max_x = inc_map.length - 1;
+    // unicodetiles.js uses [y][x] indexing
+    max_y = inc_map.length - 1;
+    max_x = inc_map[0].length - 1;
     for (y = 0; y <= max_y; y++){
         for (x = 0; x <= max_x; x++) {
-        if (!TileTypes.data[inc_map[x][y]].block_path) {
+        if (inc_map[y][x] === '.') {
+          //if (!TileTypes.data[inc_map[x][y]].block_path) {
           free_tiles.push([x, y]);
         }
       }
@@ -55,4 +59,4 @@ class Rect {
     return tile;
   };
 
-export {Rect}
+export {Rect, random_free_tile}
