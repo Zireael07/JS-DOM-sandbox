@@ -735,6 +735,13 @@ function fitTerm(view) {
 	return num_w
 }
 
+function handleContextMenu(pos) {
+	var menuElem = document.getElementById("div-context-menu");
+	menuElem.style.display = "block";
+	menuElem.style.top = (pos.y-20)+"px";
+	menuElem.style.left = (pos.x-20)+"px";
+}
+
 //basic stuff
 function initGame() {
 	window.setInterval(tick, 50); // Animation
@@ -813,15 +820,22 @@ function initGame() {
 	var gm = document.getElementById("game");
 	gm.addEventListener('mousedown', e => { 
 		e.preventDefault();
+		console.log("Button: ", e.button);
 		//var m_pos = getMousePos(e);
 		//console.log("Pressed mouse @ x: " + m_pos.x + " y: " + m_pos.y);
 		//var r_pos = relPos(e, gm);
 		//console.log("Position relative to gm: x: " + r_pos.x + " y:" + r_pos.y);
-		mouse = termPos(e, gm);
-		//console.log("Term pos: x: " + t_pos.x + " y: " + t_pos.y);
-		var w_pos = worldPos(mouse);
-		//console.log("World pos: x " + w_pos.x + " y: " + w_pos.y);
-		onClickH(w_pos);
+		if (e.button == 0) {
+			mouse = termPos(e, gm);
+			//console.log("Term pos: x: " + t_pos.x + " y: " + t_pos.y);
+			var w_pos = worldPos(mouse);
+			//console.log("World pos: x " + w_pos.x + " y: " + w_pos.y);
+			onClickH(w_pos);
+		}
+		
+		//hide context menu
+		var menuElem = document.getElementById("div-context-menu");
+		menuElem.style.display = "none";
 	});
 	gm.addEventListener('mouseup', e => { e.preventDefault() } );
 	gm.addEventListener('mousemove', e => { 
@@ -830,6 +844,23 @@ function initGame() {
 		//console.log(mouse);
 		tick();
 	});
+	// use context menu event for the alternative menu
+	window.addEventListener('contextmenu', function(e) {
+		e.preventDefault();
+		var m_pos = getMousePos(e);
+		console.log("Pressed mouse @ x: " + m_pos.x + " y: " + m_pos.y);
+		handleContextMenu(m_pos);
+	  }, false);
+
+	//hook up event to context menu
+	var getButton = document.getElementById("get-button");
+	getButton.onclick =	function() {
+		pickupItem();
+		//close menu
+		var menuElem = document.getElementById("div-context-menu");
+		menuElem.style.display = "none";
+	}
+
 	//debug
 	//gameMessage("Window width: " + window.outerWidth +  window.outerHeight+ " height" + )
 }
