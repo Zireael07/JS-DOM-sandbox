@@ -771,6 +771,7 @@ function initGame() {
 		  this.mapa = mapa;
 		  this.submaps = [];
 		  this.rooms = [];
+		  this.spawns = [];
 		}
 	  
 	  };

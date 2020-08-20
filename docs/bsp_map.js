@@ -91,7 +91,10 @@ import { State } from './game_vars.js';
     console.log(bsp_tree);
     bsp_tree.split_tree();
     paint(bsp_tree, level);
+    // more complex stuff begins here
     create_doors(bsp_tree, level.mapa);
+    var building_size = sort_buildings(level.rooms);
+    building_factory(level, building_size);
     //console.log(level.mapa)
     return level;
   };
@@ -179,5 +182,86 @@ import { State } from './game_vars.js';
       return mapa[wallY][wallX] = '.';
     }
   };
+
+
+  // implementation of building type and decor based on type
+  var building_tag = {
+    1: "PUB",
+    2: "HOVEL",
+    3: "UNASSIGNED"
+  };
+
+  // descending order
+function sort_fun(a, b) {
+  return b[1] - a[1];
+};
+
+function make_hovel(sorted, i, max) {
+  if (i > 1 && i <= max) {
+    sorted[i][2] = 2;
+    return console.log(i + " is hovel");
+  }
+};
+
+function sort_buildings(rooms) {
+  var building_size, i, r, s, sorted;
+  building_size = [];
+  for (i = 0; i < rooms.length; i++) {
+    r = rooms[i];
+    // 4 means unassigned (see above)
+    building_size.push([i, r.w * r.h, 4, r]);
+  }
+  sorted = building_size.sort(sort_fun);
+  // biggest is pub
+  sorted[0][2] = 1;
+  for (i = 0; i < sorted.length; i++) {
+    s = sorted[i];
+    // others are hovels
+    make_hovel(sorted, i, sorted.length - 1);
+  }
+  console.log(sorted);
+  return sorted;
+};
+
+function call_building_fun(i, sized, level) {
+  if (sized[i][2] === 1) {
+    build_pub(sized[i][3], level);
+  }
+};
+
+function building_factory(level, building_size) {
+  var building, i, j, len, results;
+  results = [];
+  for (i = j = 0, len = building_size.length; j < len; i = ++j) {
+    building = building_size[i];
+    results.push(call_building_fun(i, building_size, level));
+  }
+  return results;
+};
+
+function build_pub(room, level) {
+  var x, x_max, x_min, y, y_max, y_min;
+  var to_place_props = ["table", "chair", "table", "chair"];
+  var to_place_npcs = ["barkeep", 'shady', "patron", "patron"];
+  // keep the building's outskirts empty
+  x_min = room.x1 + 3;
+  x_max = room.x2 - 3;
+  y_min = room.y1 + 3;
+  y_max = room.y2 - 3;
+  // this is inclusive
+  for (x = x_min; x <= x_max; x++) {
+      for (y = y_min; y <= y_max; y++){
+        if (to_place_props.length > 0 && State.rng.roller("1d3") === 1) {
+          level.spawns.push([[x, y], [to_place_props[0], "prop"]]);
+          to_place_props = remove_list(to_place_props, to_place_props[0]);
+        }
+        if (to_place_npcs.length > 0 && State.rng.roller("1d3") === 2) {
+          level.spawns.push([[x, y], [to_place_npcs[0], "npc"]]);
+          to_place_npcs = remove_list(to_place_npcs, to_place_npcs[0]);
+        }
+      }
+  }
+};
+
 
   export { map_create }
