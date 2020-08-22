@@ -84,13 +84,15 @@ var level = null
 var WALL = new ut.Tile('▒', 200, 200, 200);
 var FLOOR = new ut.Tile('.', 255, 255, 255);
 var GRASS = new ut.Tile(',', 0, 255, 0);
+var FLOOR_INDOOR = new ut.Tile('.', 0, 128, 128);
+var DOOR = new ut.Tile("+", 211, 211, 211);
 //entities
 var AT = new ut.Tile("@", 255, 255, 255);
 var THUG = new ut.Tile("t", 255, 0, 0);
 var MED = new ut.Tile("!", 255, 0, 0);
 var KNIFE = new ut.Tile("/", 0, 255, 255);
 
-var unblocked_tiles = ['.', ',']
+var unblocked_tiles = ['.', ',', ';', '+']
 
 // Returns a Tile based on the char array map
 function getDungeonTile(x, y) {
@@ -100,6 +102,8 @@ function getDungeonTile(x, y) {
 	if (t === '#') return WALL;
 	if (t === '.') return FLOOR;
 	if (t === ',') return GRASS;
+	if (t === ';') return FLOOR_INDOOR;
+	if (t === '+') return DOOR;
 	//paranoia
 	if (t === "") return ut.NULLTILE;
 	return ut.NULLTILE;
@@ -207,7 +211,15 @@ function convertNoise(value) {
 
 function isBlocked(x,y) {
 	//FIXME: clunky!
-	return eng.tileFunc(x, y).getChar() !== unblocked_tiles[0] && eng.tileFunc(x, y).getChar() !== unblocked_tiles[1]
+	var ret = true;
+	for (let index = 0; index < unblocked_tiles.length; index++) {
+		if (level.mapa[y][x] === unblocked_tiles[index]) {
+			ret = false
+			break
+		}
+	}
+	return ret;
+	//return eng.tileFunc(x, y).getChar() !== unblocked_tiles[0] && eng.tileFunc(x, y).getChar() !== unblocked_tiles[1]
 }
 
 function move_astar(entity, tx, ty){

@@ -48,7 +48,7 @@ import { State } from './game_vars.js';
   // this is inclusive
     for (x = x_min2; x <= x_max2; x++){
         for (y = y_min2; y <= y_max2; y++){
-        mapa[y][x] = '.'
+        mapa[y][x] = ';'
       }
     }
   };
@@ -179,7 +179,7 @@ import { State } from './game_vars.js';
         wallX = room.x1 + 1;
         wallY = y;
       }
-      return mapa[wallY][wallX] = '.';
+      return mapa[wallY][wallX] = '+';
     }
   };
 
