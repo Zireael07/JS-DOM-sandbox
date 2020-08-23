@@ -84,6 +84,7 @@ var level = null
 var WALL = new ut.Tile('▒', 200, 200, 200);
 var FLOOR = new ut.Tile('.', 255, 255, 255);
 var GRASS = new ut.Tile(',', 0, 255, 0);
+var TREE = new ut.Tile('♣', 0, 153, 0);
 var FLOOR_INDOOR = new ut.Tile('.', 0, 128, 128);
 var DOOR = new ut.Tile("+", 211, 211, 211);
 //entities
@@ -102,6 +103,7 @@ function getDungeonTile(x, y) {
 	if (t === '#') return WALL;
 	if (t === '.') return FLOOR;
 	if (t === ',') return GRASS;
+	if (t === '♣') return TREE;
 	if (t === ';') return FLOOR_INDOOR;
 	if (t === '+') return DOOR;
 	//paranoia
@@ -797,7 +799,7 @@ function initGame() {
 		for (i = 0; i < 31; i++) {
 			//var bg = convertNoise(simplex_neb.noise(i*0.05,j*0.05));
 			var bg = simplex_map.noise(i*0.05, j*0.05);
-			block = bg > 0.85 ? '#' : '.' //JS ternary
+			block = bg > 0.85 ? '♣' : ',' //JS ternary
 			mapa[j][i] = block
 		}
 	}

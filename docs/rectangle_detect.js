@@ -30,7 +30,7 @@
         add = y === 0 ? 0 : num_floors[north[0]][north[1]];
         
         //console.log("North: " + north)
-        num_floors[x][y] = inc_map[y][x] === '.' ? 1 + add : 0;
+        num_floors[x][y] = inc_map[y][x] === ',' ? 1 + add : 0;
       }
     }
     return num_floors;
