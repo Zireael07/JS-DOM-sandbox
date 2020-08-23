@@ -211,16 +211,34 @@ function convertNoise(value) {
 	return ret < 256 ? ret : 255;
 }
 
+function isValid(x,y) {
+	var ret = true
+	if (x < 0 || x >= level.mapa[0].length) {
+		ret = false
+	}
+	if (y < 0 || y >= level.mapa.length) {
+		ret = false
+	}
+	return ret
+}
+
 function isBlocked(x,y) {
 	//FIXME: clunky!
 	var ret = true;
-	for (let index = 0; index < unblocked_tiles.length; index++) {
-		if (level.mapa[y][x] === unblocked_tiles[index]) {
-			ret = false
-			break
-		}
+	if (!isValid(x,y)){
+		return true;
 	}
-	return ret;
+	else {
+		for (let index = 0; index < unblocked_tiles.length; index++) {
+			if (level.mapa[y][x] === unblocked_tiles[index]) {
+				ret = false
+				break
+			}
+		}
+		return ret;
+	}
+
+
 	//return eng.tileFunc(x, y).getChar() !== unblocked_tiles[0] && eng.tileFunc(x, y).getChar() !== unblocked_tiles[1]
 }
 
@@ -305,7 +323,7 @@ function add_item(item, inventory){
 	gameMessage(`You pick up ${item.name}`, 'rgb(255,255,255)');
 	}
 
-
+//MOVE!
 function moveEntity(dx, dy, entity) {
 	//if dead, do nothing
 	if (entity.creature.dead) {
