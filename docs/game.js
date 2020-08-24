@@ -358,6 +358,21 @@ function moveEntity(dx, dy, entity) {
 	entity.x += dx;
 	entity.y += dy;
 
+
+	//test MUD-style descriptions
+	var area_desc = "This area appears to be a town that hugs a forest.";
+	if (level.mapa[ty][tx] === ','){
+		gameMessage(area_desc + "You feel the grass under your feet.")
+	}
+	else if (level.mapa[ty][tx] === '.') {
+		gameMessage(area_desc + " You walk on paved ground of the town.")
+	}
+	else if (level.mapa[ty][tx] === ';') {
+		gameMessage(area_desc + " You entered one of the buildings.")
+	}
+
+
+
 	//enemy turn
 	enemiesMove()
 }
