@@ -254,6 +254,33 @@ function move_astar(entity, tx, ty){
 	}
 }
 
+// RPG system logic
+// wrapper to enable switching out the dice rolls themselves
+function GM_test(perc) {
+	var res = false
+
+	//under the principles shown in https://deltasdnd.blogspot.com/2009/07/what-is-best-combat-algorithm.html
+	// all three are effectively equal and the same is true for any other dice size (e.g. d20 or d6)
+
+	//d100 roll under
+	var roll = rng.roller('1d100');
+	if (roll <= perc) {
+		res = true
+	}
+
+	//d100 alt
+	// Any "roll-under" dX<Y system can be converted to a "roll-over" dX>(X-Y) 
+	if (roll >= 100-perc) {
+		res = true
+	}
+
+	// third version - roll + bonuses (skill, difficulty) <= 100
+	if (roll + perc <= 100) {
+		res = true
+	}
+}
+
+
 function takeDamage(target, amount) {
     target.creature.hp -= amount;
     if (target.creature.hp <= 0) {
@@ -266,6 +293,8 @@ function takeDamage(target, amount) {
 }
 
 function attack(attacker, defender) {
+	//TODO: attack test here!
+
 	let damage = rng.roller("1d6");
 	var bonuses = 0;
 	if (attacker.inventory != null){
