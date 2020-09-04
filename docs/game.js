@@ -280,6 +280,16 @@ function GM_test(perc) {
 	}
 }
 
+// implementation of OpenD6 http://opend6project.org/
+function GM_test_D6(skill_d, skill_pip,dc) {
+	var res = false;
+	var roll = rng.roller(skill_d+'d6+') //+skill_pip);
+	//principles from https://deltasdnd.blogspot.com/2009/07/what-is-best-combat-algorithm.html apply - we can move the skill pip to check only the roll itself
+	if (roll >= dc-skill_pip) {
+		res = true
+	}
+}
+
 
 function takeDamage(target, amount) {
     target.creature.hp -= amount;
