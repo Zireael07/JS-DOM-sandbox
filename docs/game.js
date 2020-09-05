@@ -290,6 +290,20 @@ function GM_test_D6(skill_d, skill_pip,dc) {
 	}
 }
 
+//custom system
+function GM_test_d2(skill) {
+	var res = false;
+	var num_d = (20-skill);
+	var rolls = [];
+	// roller for num_d'd2-1' would just sum up without giving us access to individual rolls later
+	for (let i = 0; i < num_d; i++) {
+		var roll = rng.roller('d2-1');
+		rolls.push(roll);
+	}
+	//console.log(rolls);
+	return rolls;
+}
+
 
 function takeDamage(target, amount) {
     target.creature.hp -= amount;
@@ -304,6 +318,21 @@ function takeDamage(target, amount) {
 
 function attack(attacker, defender) {
 	//TODO: attack test here!
+	var roll = GM_test_d2(1);
+	//format
+	var out = ""
+	var sum = 0
+	for (let i = 0; i < roll.length; i++){
+		var r = roll[i];
+		if (r == 0) {
+			out = out + '0'
+		} else {
+			out = out + '1'
+			sum = sum + 1
+		}
+	}
+	//TODO: color parts of the message
+	gameMessage(out + ' = ' + sum);
 
 	let damage = rng.roller("1d6");
 	var bonuses = 0;
